@@ -7,4 +7,4 @@ routes.get('/healthcheck', (_req, res) => {
   res.status(204).send()
 })
 
-export { routes }
+export default routes
