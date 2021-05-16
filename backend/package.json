@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npx ts-node src/server.ts",
     "dev": "npx ts-node-dev src/server.ts",
-    "lint": "eslint src/**/*.js src/**/*.ts",
+    "lint": "eslint src/**/*.ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
