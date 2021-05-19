@@ -6,10 +6,10 @@ const config: {[k: string]: any} = {
   test: {
     client: 'postgresql',
     connection: {
-      host: process.env.HOST,
+      host: process.env.DB_HOST,
       database: 'ecoleta',
-      user: process.env.USER,
-      password: process.env.PASSWORD,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
       charset: 'utf-8'
     },
     migrations: {
@@ -23,10 +23,10 @@ const config: {[k: string]: any} = {
   development: {
     client: 'postgresql',
     connection: {
-      host: process.env.HOST,
+      host: process.env.DB_HOST,
       database: 'ecoleta',
-      user: process.env.USER,
-      password: process.env.PASSWORD,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
       charset: 'utf-8'
     },
     migrations: {
@@ -40,10 +40,10 @@ const config: {[k: string]: any} = {
   staging: {
     client: 'postgresql',
     connection: {
-      host: process.env.HOST,
+      host: process.env.DB_HOST,
       database: 'ecoleta',
-      user: process.env.USER,
-      password: process.env.PASSWORD
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD
     },
     pool: {
       min: 2,
@@ -56,10 +56,10 @@ const config: {[k: string]: any} = {
   production: {
     client: 'postgresql',
     connection: {
-      host: process.env.HOST,
+      host: process.env.DB_HOST,
       database: 'ecoleta',
-      user: process.env.USER,
-      password: process.env.PASSWORD
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD
     },
     pool: {
       min: 2,
