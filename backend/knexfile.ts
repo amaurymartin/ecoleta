@@ -1,3 +1,7 @@
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 const config: {[k: string]: any} = {
   test: {
     client: 'postgresql',
