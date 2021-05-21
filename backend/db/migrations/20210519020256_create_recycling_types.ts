@@ -5,7 +5,9 @@ export async function up (knex: Knex): Promise<void> {
     table.increments()
 
     table.string('description').notNullable()
-    table.string('image_base64').notNullable()
+    table.string('filename').notNullable()
+
+    table.unique(['description'])
   })
 }
 
