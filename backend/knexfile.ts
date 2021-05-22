@@ -14,10 +14,10 @@ const config: {[k: string]: any} = {
     },
     migrations: {
       tableName: 'migrations',
-      directory: './db/migrations'
+      directory: './database/migrations'
     },
     seeds: {
-      directory: './db/seeds'
+      directory: './database/seeds'
     }
   },
   development: {
@@ -31,10 +31,10 @@ const config: {[k: string]: any} = {
     },
     migrations: {
       tableName: 'migrations',
-      directory: './db/migrations'
+      directory: './database/migrations'
     },
     seeds: {
-      directory: './db/seeds'
+      directory: './database/seeds'
     }
   },
   staging: {
@@ -50,7 +50,11 @@ const config: {[k: string]: any} = {
       max: 10
     },
     migrations: {
-      tableName: 'db_migrations'
+      tableName: 'migrations',
+      directory: './database/migrations'
+    },
+    seeds: {
+      directory: './database/seeds'
     }
   },
   production: {
@@ -66,7 +70,11 @@ const config: {[k: string]: any} = {
       max: 10
     },
     migrations: {
-      tableName: 'db_migrations'
+      tableName: 'migrations',
+      directory: './database/migrations'
+    },
+    seeds: {
+      directory: './database/seeds'
     }
   }
 }
