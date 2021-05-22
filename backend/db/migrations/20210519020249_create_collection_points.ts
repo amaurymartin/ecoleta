@@ -13,9 +13,6 @@ export async function up (knex: Knex): Promise<void> {
     table.string('email').notNullable()
     table.string('password').notNullable()
     table.string('whatsapp').notNullable()
-    table.string('city').notNullable()
-    table.string('state').notNullable()
-    table.string('country').notNullable().defaultTo('BRA')
 
     table.unique(['key'])
     table.unique(['email'])
