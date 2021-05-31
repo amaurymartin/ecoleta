@@ -71,6 +71,11 @@ class CollectionPointsController {
   }
 
   async index (req: Request, res: Response) {
+    const { city, state, recycables } = req.query
+
+    const parsedRecycables = String(recycables).split(',').map(item => Number(item.trim()))
+
+    // TODO: apply filters (city, state and recycables) on query
     const collectionPoints = await connection('collection_points').select('*')
     const total = await connection('collection_points').count('*').first() || 0
 
@@ -86,6 +91,8 @@ class CollectionPointsController {
     const collectionPointKey = req.params.key
     const collectionPoint = await connection('collection_points').select('*')
       .where({ key: collectionPointKey }).first()
+
+    if (!collectionPoint) return res.status(404).json({ error: 'Not found' })
 
     const address = await connection('addresses').select('*')
       .where({ id: collectionPoint.address_id }).first()
