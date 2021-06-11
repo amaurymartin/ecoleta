@@ -71,18 +71,29 @@ class CollectionPointsController {
   }
 
   async index (req: Request, res: Response) {
-    const { city, state, recycables } = req.query
+    // TODO: Add pagination
+    const { city, state, recyclables } = req.query
 
-    const parsedRecycables = String(recycables).split(',').map(item => Number(item.trim()))
+    const parsedRecycables = recyclables
+      ? String(recyclables).split(',').map(item => Number(item.trim()))
+      : []
 
-    // TODO: apply filters (city, state and recycables) on query
+    console.log(city)
     const collectionPoints = await connection('collection_points')
       .join('collection_point_recyclabes',
         'collection_points.id', 'collection_point_recyclabes.collection_point_id')
-      .whereIn('collection_point_recyclabes.recycling_type_id', parsedRecycables)
+      .modify(function (qb) {
+        if (parsedRecycables.length > 0) {
+          qb.whereIn('collection_point_recyclabes.recycling_type_id', parsedRecycables)
+        }
+      })
       .join('addresses', 'collection_points.address_id', 'addresses.id')
-      .where('city', String(city))
-      .where('state', String(state))
+      .modify(function (qb) {
+        if (city) qb.where('city', String(city))
+      })
+      .modify(function (qb) {
+        if (state) qb.where('state', String(state))
+      })
       .distinct()
       .select(['collection_points.*', 'addresses.*'])
 
