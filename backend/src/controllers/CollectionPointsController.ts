@@ -97,11 +97,10 @@ class CollectionPointsController {
     const address = await connection('addresses').select('*')
       .where({ id: collectionPoint.address_id }).first()
 
-    const recycablesIds = await connection('collection_point_recyclabes')
-      .select('recycling_type_id').where({ collection_point_id: collectionPoint.id })
-
-    const recycables = await connection('recycling_types').select('*')
-      .whereIn('id', recycablesIds.map(e => e.recycling_type_id))
+    const recyclables = await connection('recycling_types')
+      .join('collection_point_recyclabes',
+        'recycling_types.id', 'collection_point_recyclabes.recycling_type_id')
+      .where('collection_point_recyclabes.collection_point_id', collectionPoint.id)
 
     return res.json({
       collection_point: {
@@ -111,11 +110,11 @@ class CollectionPointsController {
         imageBase64: collectionPoint.image_base64,
         email: collectionPoint.email,
         whatsapp: collectionPoint.whatsapp,
-        recycables: recycables.map(recycable => {
+        recycables: recyclables.map(recyclable => {
           return {
-            id: recycable.id,
-            description: recycable.description,
-            image_url: `/assets/${recycable.description}`
+            id: recyclable.id,
+            description: recyclable.description,
+            image_url: `/assets/${recyclable.description}`
           }
         }),
         address: {
