@@ -1,10 +1,12 @@
 import React from 'react'
 
+import Home from './pages/home/home'
+
 import './App.css'
 
 function App () {
   return (
-    <h1>Ecoleta</h1>
+    <Home />
   )
 }
 
