@@ -76,15 +76,43 @@ class CollectionPointsController {
     const parsedRecycables = String(recycables).split(',').map(item => Number(item.trim()))
 
     // TODO: apply filters (city, state and recycables) on query
-    const collectionPoints = await connection('collection_points').select('*')
-    const total = await connection('collection_points').count('*').first() || 0
+    const collectionPoints = await connection('collection_points')
+      .join('collection_point_recyclabes',
+        'collection_points.id', 'collection_point_recyclabes.collection_point_id')
+      .whereIn('collection_point_recyclabes.recycling_type_id', parsedRecycables)
+      .join('addresses', 'collection_points.address_id', 'addresses.id')
+      .where('city', String(city))
+      .where('state', String(state))
+      .distinct()
+      .select(['collection_points.*', 'addresses.*'])
 
-    const count = total ? total.count : 0
+    const count = collectionPoints.length || 0
     res.header('X-Total-Count', count.toString())
 
-    // TODO: is nedeed to serialize address and recycables on this response json?
-
-    return res.json(collectionPoints)
+    return res.json(
+      {
+        collectionPoints: collectionPoints.map(collectionPoint => {
+          return {
+            key: collectionPoint.key,
+            name: collectionPoint.name,
+            nickname: collectionPoint.nickname,
+            imageBase64: collectionPoint.image_base64,
+            email: collectionPoint.email,
+            whatsapp: collectionPoint.whatsapp,
+            address: {
+              street: collectionPoint.street,
+              number: collectionPoint.number,
+              complement: collectionPoint.complement,
+              city: collectionPoint.city,
+              state: collectionPoint.state,
+              country: collectionPoint.country,
+              latitude: collectionPoint.latitude,
+              longitude: collectionPoint.longitude
+            }
+          }
+        })
+      }
+    )
   }
 
   async show (req: Request, res: Response) {
