@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -7,7 +7,26 @@ import './collection-points-new.css'
 
 import logo from '../../../assets/logo.svg'
 
+import api from '../../../services/api'
+
+interface RecyclingType {
+  id: number
+  description: string
+  // eslint-disable-next-line camelcase
+  image_url: string
+}
+
+const { REACT_APP_API_SCHEME, REACT_APP_API_DOMAIN, REACT_APP_API_PORT } = process.env
+
 const CollectionPointsNew = () => {
+  const [recyclingTypes, setRecyclingTypes] = useState<RecyclingType[]>([])
+
+  useEffect(() => {
+    api.get('recycling-types').then(res => {
+      setRecyclingTypes(res.data)
+    })
+  }, [])
+
   return (
     <div id="collection-points-new">
         <header>
@@ -134,30 +153,18 @@ const CollectionPointsNew = () => {
             </legend>
 
             <ul className="recyclabes-grid">
-              <li>
-                <img src="http://localhost:3001/assets/lamps.svg" alt="Lamps" />
-                <span>Oil</span>
-              </li>
-              <li className="selected">
-                <img src="http://localhost:3001/assets/batteries.svg" alt="Batteries" />
-                <span>Oil</span>
-              </li>
-              <li>
-                <img src="http://localhost:3001/assets/papers.svg" alt="Papers" />
-                <span>Oil</span>
-              </li>
-              <li>
-                <img src="http://localhost:3001/assets/electronics.svg" alt="Electronics" />
-                <span>Oil</span>
-              </li>
-              <li>
-                <img src="http://localhost:3001/assets/organics.svg" alt="Organics" />
-                <span>Oil</span>
-              </li>
-              <li>
-                <img src="http://localhost:3001/assets/oil.svg" alt="Oil" />
-                <span>Oil</span>
-              </li>
+              {console.log(recyclingTypes)}
+              {
+                recyclingTypes.map(recyclingType => (
+                  <li key={recyclingType.id}>
+                    <img
+                      src={`${REACT_APP_API_SCHEME}://${REACT_APP_API_DOMAIN}:${REACT_APP_API_PORT}${recyclingType.image_url}.svg`}
+                      alt={recyclingType.description}
+                    />
+                    <span>{recyclingType.description}</span>
+                  </li>
+                ))
+              }
             </ul>
           </fieldset>
 
