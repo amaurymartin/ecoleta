@@ -1,6 +1,7 @@
 import React from 'react'
-import { FiArrowLeft } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
+import { FiArrowLeft } from 'react-icons/fi'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 
 import './collection-points-new.css'
 
@@ -112,6 +113,18 @@ const CollectionPointsNew = () => {
                 </select>
               </div>
             </div>
+
+            <MapContainer center={[-3.7436121, -38.5194538]} zoom={13}>
+              <TileLayer
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Marker position={[-3.7436121, -38.5194538]}>
+                <Popup>
+                  A pretty CSS3 popup. <br /> Easily customizable.
+                </Popup>
+              </Marker>
+            </MapContainer>
           </fieldset>
 
           <fieldset>
