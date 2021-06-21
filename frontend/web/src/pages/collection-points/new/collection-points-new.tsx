@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, ChangeEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -9,6 +9,8 @@ import logo from '../../../assets/logo.svg'
 
 import api from '../../../services/api'
 
+import ibge from '../../../services/ibge'
+
 interface RecyclingType {
   id: number
   description: string
@@ -16,9 +18,18 @@ interface RecyclingType {
   image_url: string
 }
 
+interface IbGEUFResponse {
+  sigla: string
+  nome: string
+}
+
 const { REACT_APP_API_SCHEME, REACT_APP_API_DOMAIN, REACT_APP_API_PORT } = process.env
 
 const CollectionPointsNew = () => {
+  const [brazilianStates, setBrazilianStates] = useState<string[]>([])
+  const [selectedState, setSelectedState] = useState<string>('0')
+  const [brazilianStateCities, setBrazilianStateCities] = useState<string[]>([])
+  const [selectedCity, setSelectedCity] = useState<string>('0')
   const [recyclingTypes, setRecyclingTypes] = useState<RecyclingType[]>([])
 
   useEffect(() => {
@@ -26,6 +37,29 @@ const CollectionPointsNew = () => {
       setRecyclingTypes(res.data)
     })
   }, [])
+
+  useEffect(() => {
+    ibge.get<IbGEUFResponse[]>('localidades/estados?orderBy=nome').then(res => {
+      setBrazilianStates(res.data.map(state => state.sigla))
+    })
+  }, [])
+
+  useEffect(() => {
+    if (selectedState === '0') return
+
+    ibge.get<IbGEUFResponse[]>(`localidades/estados/${selectedState}/municipios?orderBy=nome`)
+      .then(res => {
+        setBrazilianStateCities(res.data.map(city => city.nome))
+      })
+  }, [selectedState])
+
+  function selectState (event: ChangeEvent<HTMLSelectElement>) {
+    setSelectedState(event.target.value)
+  }
+
+  function selectCity (event: ChangeEvent<HTMLSelectElement>) {
+    setSelectedCity(event.target.value)
+  }
 
   return (
     <div id="collection-points-new">
@@ -121,14 +155,20 @@ const CollectionPointsNew = () => {
             <div className="field-group">
               <div className="field">
                 <label htmlFor="state">State</label>
-                <select id="state" name="state">
+                <select id="state" name="state" value={selectedState} onChange={selectState}>
                   <option value="0">Select your state</option>
+                  {brazilianStates.map(state => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
                 </select>
               </div>
               <div className="field">
                 <label htmlFor="city">City</label>
-                <select id="city" name="city">
+                <select id="city" name="city" value={selectedCity} onChange={selectCity}>
                   <option value="0">Select your city</option>
+                  {brazilianStateCities.map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -153,7 +193,6 @@ const CollectionPointsNew = () => {
             </legend>
 
             <ul className="recyclabes-grid">
-              {console.log(recyclingTypes)}
               {
                 recyclingTypes.map(recyclingType => (
                   <li key={recyclingType.id}>
