@@ -1,7 +1,8 @@
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer } from 'react-leaflet'
+import LocationMarker from './locationMarker'
 
 import './collection-points-new.css'
 
@@ -28,8 +29,10 @@ const { REACT_APP_API_SCHEME, REACT_APP_API_DOMAIN, REACT_APP_API_PORT } = proce
 const CollectionPointsNew = () => {
   const [brazilianStates, setBrazilianStates] = useState<string[]>([])
   const [selectedState, setSelectedState] = useState<string>('0')
+
   const [brazilianStateCities, setBrazilianStateCities] = useState<string[]>([])
   const [selectedCity, setSelectedCity] = useState<string>('0')
+
   const [recyclingTypes, setRecyclingTypes] = useState<RecyclingType[]>([])
 
   useEffect(() => {
@@ -178,11 +181,7 @@ const CollectionPointsNew = () => {
                 attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <Marker position={[-3.7436121, -38.5194538]}>
-                <Popup>
-                  A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-              </Marker>
+              <LocationMarker />
             </MapContainer>
           </fieldset>
 
