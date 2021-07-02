@@ -47,8 +47,8 @@ class CollectionPointsController {
 
     if (!collectionPoints[0]) return res.status(422).json({ error: 'Error on Collection Point data' })
 
-    await trx('collection_point_recyclabes').insert(
-      collectionPoint.recyclabes.map((recyclabeId: number) => {
+    await trx('collection_point_recyclables').insert(
+      collectionPoint.recyclables.map((recyclabeId: number) => {
         return {
           collection_point_id: collectionPoints[0],
           recycling_type_id: recyclabeId
@@ -58,7 +58,7 @@ class CollectionPointsController {
       console.log(error)
       trx.commit()
 
-      return res.status(422).json({ error: 'Error on Collection Point recyclabes' })
+      return res.status(422).json({ error: 'Error on Collection Point recyclables' })
     })
 
     await trx.commit()
@@ -80,11 +80,11 @@ class CollectionPointsController {
 
     console.log(city)
     const collectionPoints = await connection('collection_points')
-      .join('collection_point_recyclabes',
-        'collection_points.id', 'collection_point_recyclabes.collection_point_id')
+      .join('collection_point_recyclables',
+        'collection_points.id', 'collection_point_recyclables.collection_point_id')
       .modify(function (qb) {
         if (parsedRecycables.length > 0) {
-          qb.whereIn('collection_point_recyclabes.recycling_type_id', parsedRecycables)
+          qb.whereIn('collection_point_recyclables.recycling_type_id', parsedRecycables)
         }
       })
       .join('addresses', 'collection_points.address_id', 'addresses.id')
@@ -137,9 +137,9 @@ class CollectionPointsController {
       .where({ id: collectionPoint.address_id }).first()
 
     const recyclables = await connection('recycling_types')
-      .join('collection_point_recyclabes',
-        'recycling_types.id', 'collection_point_recyclabes.recycling_type_id')
-      .where('collection_point_recyclabes.collection_point_id', collectionPoint.id)
+      .join('collection_point_recyclables',
+        'recycling_types.id', 'collection_point_recyclables.recycling_type_id')
+      .where('collection_point_recyclables.collection_point_id', collectionPoint.id)
 
     return res.json({
       collection_point: {
