@@ -1,5 +1,5 @@
-import React, { useState, useEffect, ChangeEvent } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
+import { Link, useHistory } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import { MapContainer, TileLayer } from 'react-leaflet'
 import LocationMarker from './locationMarker'
@@ -33,7 +33,23 @@ const CollectionPointsNew = () => {
   const [brazilianStateCities, setBrazilianStateCities] = useState<string[]>([])
   const [selectedCity, setSelectedCity] = useState<string>('0')
 
+  const [initialPosition, setInitialPosition] = useState<[number, number]>([-3.7436121, -38.5194538])
+  const [currentPosition, setCurrentPosition] = useState<[number, number]>([-3.7436121, -38.5194538])
+
   const [recyclingTypes, setRecyclingTypes] = useState<RecyclingType[]>([])
+  const [recyclables, setRecyclables] = useState<number[]>([])
+
+  const [formData, setFormData] = useState({
+    name: null,
+    nickname: null,
+    email: null,
+    whatsapp: null,
+    street: null,
+    number: null,
+    complement: null
+  })
+
+  const history = useHistory()
 
   useEffect(() => {
     api.get('recycling-types').then(res => {
@@ -56,12 +72,65 @@ const CollectionPointsNew = () => {
       })
   }, [selectedState])
 
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(position => {
+      setInitialPosition([position.coords.latitude, position.coords.longitude])
+    })
+  }, [])
+
   function selectState (event: ChangeEvent<HTMLSelectElement>) {
     setSelectedState(event.target.value)
   }
 
   function selectCity (event: ChangeEvent<HTMLSelectElement>) {
     setSelectedCity(event.target.value)
+  }
+
+  function fillForm (event: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = event.target
+
+    setFormData({ ...formData, [name]: value })
+  }
+
+  function selectRecyclingType (recyclingTypeId: number) {
+    if (recyclables.includes(recyclingTypeId)) {
+      setRecyclables(recyclables.filter(recyclabe => recyclabe !== recyclingTypeId))
+    } else {
+      setRecyclables([...recyclables, recyclingTypeId])
+    }
+  }
+
+  async function createCollectionPoint (event: FormEvent) {
+    event.preventDefault()
+
+    const { name, nickname, email, whatsapp, street, number, complement } = formData
+
+    const payload = {
+      collectionPoint: {
+        name: name,
+        nickname: nickname,
+        whatsapp: whatsapp,
+        email: email,
+        imageBase64: 'imageBase64',
+        recyclables: recyclables,
+        address: {
+          street: street,
+          number: number,
+          complement: complement,
+          city: selectedCity,
+          state: selectedState,
+          country: 'Brazil',
+          latitude: currentPosition[0],
+          longitude: currentPosition[1]
+        }
+      }
+    }
+
+    // TODO: catch failure
+    await api.post('collection-points', payload)
+    alert('Collection point created')
+
+    history.push('/')
   }
 
   return (
@@ -75,7 +144,7 @@ const CollectionPointsNew = () => {
           </Link>
         </header>
 
-        <form action="">
+        <form onSubmit={createCollectionPoint}>
           <h1>New collection point</h1>
 
           <fieldset>
@@ -89,6 +158,7 @@ const CollectionPointsNew = () => {
                 id="name"
                 name="name"
                 type="text"
+                onChange={fillForm}
               />
             </div>
 
@@ -98,6 +168,7 @@ const CollectionPointsNew = () => {
                 id="email"
                 name="email"
                 type="email"
+                onChange={fillForm}
               />
             </div>
 
@@ -108,6 +179,7 @@ const CollectionPointsNew = () => {
                   id="whatsapp"
                   name="whatsapp"
                   type="text"
+                  onChange={fillForm}
                 />
               </div>
               <div className="field">
@@ -116,6 +188,7 @@ const CollectionPointsNew = () => {
                   id="nickname"
                   name="nickname"
                   type="text"
+                  onChange={fillForm}
                 />
               </div>
             </div>
@@ -133,6 +206,7 @@ const CollectionPointsNew = () => {
                 id="street"
                 name="street"
                 type="text"
+                onChange={fillForm}
               />
             </div>
 
@@ -143,6 +217,7 @@ const CollectionPointsNew = () => {
                   id="number"
                   name="number"
                   type="text"
+                  onChange={fillForm}
                 />
               </div>
               <div className="field">
@@ -151,6 +226,7 @@ const CollectionPointsNew = () => {
                   id="complement"
                   name="complement"
                   type="text"
+                  onChange={fillForm}
                 />
               </div>
             </div>
@@ -176,12 +252,15 @@ const CollectionPointsNew = () => {
               </div>
             </div>
 
-            <MapContainer center={[-3.7436121, -38.5194538]} zoom={13}>
+            <MapContainer center={initialPosition} zoom={13}>
               <TileLayer
                 attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <LocationMarker />
+              <LocationMarker
+                currentPosition={currentPosition}
+                setCurrentPosition={setCurrentPosition}
+              />
             </MapContainer>
           </fieldset>
 
@@ -194,7 +273,11 @@ const CollectionPointsNew = () => {
             <ul className="recyclabes-grid">
               {
                 recyclingTypes.map(recyclingType => (
-                  <li key={recyclingType.id}>
+                  <li
+                    key={recyclingType.id}
+                    className={recyclables.includes(recyclingType.id) ? 'selected' : '' }
+                    onClick={() => selectRecyclingType(recyclingType.id)}
+                  >
                     <img
                       src={`${REACT_APP_API_SCHEME}://${REACT_APP_API_DOMAIN}:${REACT_APP_API_PORT}${recyclingType.image_url}.svg`}
                       alt={recyclingType.description}
