@@ -1,12 +1,12 @@
+import { v4 as uuidv4 } from 'uuid'
 import { Request, Response } from 'express'
 import connection from '../../database/connection'
-
-import keyable from '../utils/keyable'
 
 class CollectionPointsController {
   async create (req: Request, res: Response) {
     const { collectionPoint } = req.body
-    const key = keyable
+    const key = uuidv4()
+    console.log(key)
 
     // TODO: check uniques (key, whatsapp, email)
 
@@ -38,7 +38,6 @@ class CollectionPointsController {
         : collectionPoint.name.split(' ')[0],
       whatsapp: collectionPoint.whatsapp,
       email: collectionPoint.email,
-      password: collectionPoint.password,
       image_base64: collectionPoint.imageBase64
     }).returning('id').catch(error => {
       console.log(error)

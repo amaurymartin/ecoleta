@@ -11,7 +11,6 @@ export async function up (knex: Knex): Promise<void> {
     table.string('nickname').notNullable()
     table.string('image_base64').notNullable()
     table.string('email').notNullable()
-    table.string('password').notNullable()
     table.string('whatsapp').notNullable()
 
     table.unique(['key'])
