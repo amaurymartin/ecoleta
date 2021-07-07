@@ -2,7 +2,8 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import { MapContainer, TileLayer } from 'react-leaflet'
-import LocationMarker from './locationMarker'
+
+import LocationMarker from './map/locationMarker'
 
 import './collection-points-new.css'
 
@@ -33,7 +34,6 @@ const CollectionPointsNew = () => {
   const [brazilianStateCities, setBrazilianStateCities] = useState<string[]>([])
   const [selectedCity, setSelectedCity] = useState<string>('0')
 
-  const [initialPosition, setInitialPosition] = useState<[number, number]>([-3.7436121, -38.5194538])
   const [currentPosition, setCurrentPosition] = useState<[number, number]>([-3.7436121, -38.5194538])
 
   const [recyclingTypes, setRecyclingTypes] = useState<RecyclingType[]>([])
@@ -74,7 +74,7 @@ const CollectionPointsNew = () => {
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(position => {
-      setInitialPosition([position.coords.latitude, position.coords.longitude])
+      setCurrentPosition([position.coords.latitude, position.coords.longitude])
     })
   }, [])
 
@@ -252,7 +252,7 @@ const CollectionPointsNew = () => {
               </div>
             </div>
 
-            <MapContainer center={initialPosition} zoom={13}>
+            <MapContainer center={currentPosition} zoom={13}>
               <TileLayer
                 attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
