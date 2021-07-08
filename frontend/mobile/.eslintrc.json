@@ -1,26 +1,24 @@
 {
   "env": {
-    "browser": true,
     "es2021": true
   },
   "extends": [
     "plugin:react/recommended",
-    "standard"
+    "standard",
+    "eslint:recommended",
+    "prettier",
+    "plugin:prettier/recommended"
   ],
-  "parser": "@typescript-eslint/parser",
+  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaFeatures": {
-        "jsx": true
+      "jsx": true
     },
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": [
-    "react",
-    "@typescript-eslint"
-  ],
-  "rules": {
-  },
+  "plugins": ["react", "prettier"],
+  "rules": {},
   "settings": {
     "react": {
       "version": "detect"
