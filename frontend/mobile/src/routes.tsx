@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Home from './pages/home/home';
 import CollectionPointsIndex from './pages/collectionPoints/index/collectionPointsIndex';
-import CollectionPointsShow from './pages/collectionPoints/show/collectionPoointsShow';
+import CollectionPointsShow from './pages/collectionPoints/show/collectionPointsShow';
 
 const AppStack = createStackNavigator();
 
