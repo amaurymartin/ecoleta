@@ -7,7 +7,7 @@ import { Roboto_400Regular, Roboto_500Medium } from '@expo-google-fonts/roboto';
 // eslint-disable-next-line camelcase
 import { Ubuntu_700Bold, useFonts } from '@expo-google-fonts/ubuntu';
 
-import Home from './src/pages/home/home';
+import Routes from './src/routes';
 
 export default function App() {
   const [fonts] = useFonts({
@@ -27,7 +27,7 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
-      <Home />
+      <Routes />
     </>
   );
 }
