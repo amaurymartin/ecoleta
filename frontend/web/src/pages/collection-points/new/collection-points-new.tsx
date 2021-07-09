@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import { MapContainer, TileLayer } from 'react-leaflet'
@@ -25,7 +25,7 @@ interface IbGEUFResponse {
   nome: string
 }
 
-const { REACT_APP_API_SCHEME, REACT_APP_API_DOMAIN, REACT_APP_API_PORT } = process.env
+// const { REACT_APP_API_SCHEME, REACT_APP_API_DOMAIN, REACT_APP_API_PORT } = process.env
 
 const CollectionPointsNew = () => {
   const [brazilianStates, setBrazilianStates] = useState<string[]>([])
@@ -279,7 +279,7 @@ const CollectionPointsNew = () => {
                     onClick={() => selectRecyclingType(recyclingType.id)}
                   >
                     <img
-                      src={`${REACT_APP_API_SCHEME}://${REACT_APP_API_DOMAIN}:${REACT_APP_API_PORT}${recyclingType.image_url}.svg`}
+                      src={`${recyclingType.image_url}.svg`}
                       alt={recyclingType.description}
                     />
                     <span>{recyclingType.description}</span>

@@ -1,9 +1,8 @@
-import React from 'react'
 import { Marker, Popup, useMapEvents } from 'react-leaflet'
 
 interface LocationProps {
   currentPosition: [number, number],
-  setCurrentPosition: any
+  setCurrentPosition: (currentPosition: [number, number]) => void
 }
 
 const LocationMarker = (props: LocationProps) => {
