@@ -1,7 +1,16 @@
 import React from 'react';
 import { View, ImageBackground, Image, Text, StyleSheet } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import { Feather as Icon } from '@expo/vector-icons';
 
 const Home = () => {
+  const navigation = useNavigation();
+
+  function navigateToCollectionPointsIndex() {
+    navigation.navigate('CollectionPointsIndex');
+  }
+
   return (
     <ImageBackground
       source={require('../../assets/home-background.png')}
@@ -16,9 +25,17 @@ const Home = () => {
         </Text>
       </View>
 
-      {/* <View style={styles.footer}>
-
-      </View> */}
+      <View style={styles.footer}>
+        <RectButton
+          style={styles.button}
+          onPress={navigateToCollectionPointsIndex}
+        >
+          <View style={styles.buttonIcon}>
+            <Icon name="arrow-right" color="#FFF" size={24}></Icon>
+          </View>
+          <Text style={styles.buttonText}>See collection points</Text>
+        </RectButton>
+      </View>
     </ImageBackground>
   );
 };
@@ -27,7 +44,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 32,
-    backgroundColor: '#F0F0F5',
   },
 
   main: {
