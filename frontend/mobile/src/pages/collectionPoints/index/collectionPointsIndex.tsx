@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -11,10 +12,32 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
+import * as Location from 'expo-location';
 import { Feather as Icon } from '@expo/vector-icons';
 
 import api from '../../../services/api';
+interface CollectionPoints {
+  key: string;
+  name: string;
+  nickname: string;
+  imageBase64: string;
+  email: string;
+  whatsapp: string;
+  address: {
+    street: string;
+    number: string;
+    complement: string;
+    city: string;
+    state: string;
+    country: string;
+    latitude: string;
+    longitude: string;
+  };
+}
 
+interface IndexCollectionPointsResponse {
+  collectionPoints: CollectionPoints[];
+}
 interface RecyclingTypes {
   id: number;
   description: string;
@@ -22,6 +45,12 @@ interface RecyclingTypes {
 }
 
 const CollectionPointsIndex = () => {
+  const [currentLocation, setCurrentLocation] = useState<[number, number]>([
+    0, 0,
+  ]);
+  const [collectionPoints, setCollectionPoints] = useState<CollectionPoints[]>(
+    []
+  );
   const [recyclingTypes, setRecyclingTypes] = useState<RecyclingTypes[]>([]);
   const [selectedRecyclingTypes, setSelectedRecyclingTypes] = useState<
     number[]
@@ -32,8 +61,10 @@ const CollectionPointsIndex = () => {
     navigation.goBack();
   }
 
-  function navigateToCollectionPointsShow() {
-    navigation.navigate('CollectionPointsShow');
+  function navigateToCollectionPointsShow(collectionPointKey: string) {
+    navigation.navigate('CollectionPointsShow', {
+      collectionPointKey: collectionPointKey,
+    });
   }
 
   function selectRecyclingType(recyclingTypeId: number) {
@@ -49,9 +80,38 @@ const CollectionPointsIndex = () => {
   }
 
   useEffect(() => {
-    api.get('recycling-types').then((res) => {
-      setRecyclingTypes(res.data);
-    });
+    async function getCurrentLocation() {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert('Something is wrong', 'Location needed');
+        return;
+      }
+
+      const currentLocation = await Location.getCurrentPositionAsync();
+      const { latitude, longitude } = currentLocation.coords;
+
+      console.log(latitude, longitude);
+      setCurrentLocation([latitude, longitude]);
+    }
+
+    getCurrentLocation();
+  }, []);
+
+  useEffect(() => {
+    api
+      .get<IndexCollectionPointsResponse>('collection-points', {
+        params: {
+          city: 'Fortaleza',
+          state: 'CE',
+          recyclabes: [1, 2],
+        },
+      })
+      .then((res) => setCollectionPoints(res.data.collectionPoints));
+  }, []);
+
+  useEffect(() => {
+    api.get('recycling-types').then((res) => setRecyclingTypes(res.data));
   }, []);
 
   return (
@@ -65,32 +125,43 @@ const CollectionPointsIndex = () => {
         <Text style={styles.subtitle}>Find a collection point in the map</Text>
 
         <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: -3.7436121,
-              longitude: -38.5194538,
-              latitudeDelta: 0.042,
-              longitudeDelta: 0.042,
-            }}
-          >
-            <Marker
-              style={styles.mapMarker}
-              coordinate={{ latitude: -3.7436121, longitude: -38.5194538 }}
-              onPress={navigateToCollectionPointsShow}
+          {currentLocation[0] !== 0 && (
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: currentLocation[0],
+                longitude: currentLocation[1],
+                latitudeDelta: 0.042,
+                longitudeDelta: 0.042,
+              }}
             >
-              <View style={styles.mapMarkerContainer}>
-                <Image
-                  style={styles.mapMarkerImage}
-                  source={{
-                    // TODO: get image_uri from api
-                    uri: 'https://unsplash.com/photos/D6Tu_L3chLE/download?force=true&w=640',
+              {collectionPoints.map((collectionPoint) => (
+                <Marker
+                  style={styles.mapMarker}
+                  coordinate={{
+                    latitude: Number(collectionPoint.address.latitude),
+                    longitude: Number(collectionPoint.address.longitude),
                   }}
-                />
-                <Text style={styles.mapMarkerDescription}>Market</Text>
-              </View>
-            </Marker>
-          </MapView>
+                  onPress={() =>
+                    navigateToCollectionPointsShow(collectionPoint.key)
+                  }
+                  key={collectionPoint.key}
+                >
+                  <View style={styles.mapMarkerContainer}>
+                    <Image
+                      style={styles.mapMarkerImage}
+                      source={{
+                        uri: collectionPoint.imageBase64,
+                      }}
+                    />
+                    <Text style={styles.mapMarkerDescription}>
+                      {collectionPoint.nickname}
+                    </Text>
+                  </View>
+                </Marker>
+              ))}
+            </MapView>
+          )}
         </View>
       </View>
       <View style={styles.recyclableTypesContainer}>
