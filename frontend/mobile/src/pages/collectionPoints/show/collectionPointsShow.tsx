@@ -1,12 +1,58 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Constants from 'expo-constants';
+import {
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 
 const CollectionPointsShow = () => {
+  const navigation = useNavigation();
+
+  function navigateBack() {
+    navigation.goBack();
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Hello World!</Text>
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={navigateBack}>
+          <Feather name="arrow-left" color="#34CB79" size={20} />
+        </TouchableOpacity>
+
+        <Image
+          style={styles.collectionPointImage}
+          source={{
+            uri: 'https://unsplash.com/photos/D6Tu_L3chLE/download?force=true&w=640',
+          }}
+        />
+
+        <Text style={styles.collectionPointName}>{`Corner's market`}</Text>
+
+        <Text style={styles.collectionPointRecyclables}>Lamps, Oil</Text>
+
+        <View style={styles.collectionPointAddress}>
+          <Text style={styles.addressStreet}>Rua 1234. n 5678</Text>
+          <Text style={styles.addressContent}>Fortaleza, Ceará</Text>
+        </View>
+      </View>
+
+      <View style={styles.footer}>
+        <RectButton style={styles.button} onPress={() => {}}>
+          <FontAwesome name="whatsapp" color="#FFF" size={20} />
+          <Text style={styles.buttonText}>Whatsapp</Text>
+        </RectButton>
+        <RectButton style={styles.button} onPress={() => {}}>
+          <Feather name="mail" color="#FFF" size={20} />
+          <Text style={styles.buttonText}>Email</Text>
+        </RectButton>
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -14,7 +60,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 32,
-    paddingTop: 20 + Constants.statusBarHeight,
+    paddingTop: 20,
   },
 
   collectionPointImage: {
@@ -30,6 +76,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontFamily: 'Ubuntu_700Bold',
     marginTop: 24,
+    textAlign: 'center',
   },
 
   collectionPointRecyclables: {
@@ -40,7 +87,7 @@ const styles = StyleSheet.create({
     color: '#6C6C80',
   },
 
-  address: {
+  collectionPointAddress: {
     marginTop: 32,
   },
 

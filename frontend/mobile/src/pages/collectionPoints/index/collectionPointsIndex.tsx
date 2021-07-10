@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Image,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,7 +11,6 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
-import Constants from 'expo-constants';
 import { Feather as Icon } from '@expo/vector-icons';
 
 const CollectionPointsIndex = () => {
@@ -25,7 +25,7 @@ const CollectionPointsIndex = () => {
   }
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <TouchableOpacity onPress={navigateBack}>
           <Icon name="arrow-left" color="#34CB79" size={20} />
@@ -79,7 +79,7 @@ const CollectionPointsIndex = () => {
           </ScrollView>
         </View>
       </View>
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 32,
-    paddingTop: 20 + Constants.statusBarHeight,
+    paddingTop: 20,
   },
 
   title: {
