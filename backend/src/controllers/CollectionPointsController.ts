@@ -6,7 +6,6 @@ class CollectionPointsController {
   async create (req: Request, res: Response) {
     const { collectionPoint } = req.body
     const key = uuidv4()
-    console.log(key)
 
     // TODO: check uniques (key, whatsapp, email)
 
@@ -47,10 +46,10 @@ class CollectionPointsController {
     if (!collectionPoints[0]) return res.status(422).json({ error: 'Error on Collection Point data' })
 
     await trx('collection_point_recyclables').insert(
-      collectionPoint.recyclables.map((recyclabeId: number) => {
+      collectionPoint.recyclables.map((recyclableId: number) => {
         return {
           collection_point_id: collectionPoints[0],
-          recycling_type_id: recyclabeId
+          recycling_type_id: recyclableId
         }
       })
     ).catch(error => {
@@ -73,17 +72,16 @@ class CollectionPointsController {
     // TODO: Add pagination
     const { city, state, recyclables } = req.query
 
-    const parsedRecycables = recyclables
+    const parsedRecyclables = recyclables
       ? String(recyclables).split(',').map(item => Number(item.trim()))
       : []
 
-    console.log(city)
     const collectionPoints = await connection('collection_points')
       .join('collection_point_recyclables',
         'collection_points.id', 'collection_point_recyclables.collection_point_id')
       .modify(function (qb) {
-        if (parsedRecycables.length > 0) {
-          qb.whereIn('collection_point_recyclables.recycling_type_id', parsedRecycables)
+        if (parsedRecyclables.length > 0) {
+          qb.whereIn('collection_point_recyclables.recycling_type_id', parsedRecyclables)
         }
       })
       .join('addresses', 'collection_points.address_id', 'addresses.id')
@@ -148,7 +146,7 @@ class CollectionPointsController {
         imageBase64: collectionPoint.image_base64,
         email: collectionPoint.email,
         whatsapp: collectionPoint.whatsapp,
-        recycables: recyclables.map(recyclable => {
+        recyclables: recyclables.map(recyclable => {
           return {
             id: recyclable.id,
             description: recyclable.description,
