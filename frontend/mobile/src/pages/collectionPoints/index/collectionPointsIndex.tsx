@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Image,
   SafeAreaView,
@@ -13,7 +13,19 @@ import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { Feather as Icon } from '@expo/vector-icons';
 
+import api from '../../../services/api';
+
+interface RecyclingTypes {
+  id: number;
+  description: string;
+  image_url: string;
+}
+
 const CollectionPointsIndex = () => {
+  const [recyclingTypes, setRecyclingTypes] = useState<RecyclingTypes[]>([]);
+  const [selectedRecyclingTypes, setSelectedRecyclingTypes] = useState<
+    number[]
+  >([]);
   const navigation = useNavigation();
 
   function navigateBack() {
@@ -23,6 +35,24 @@ const CollectionPointsIndex = () => {
   function navigateToCollectionPointsShow() {
     navigation.navigate('CollectionPointsShow');
   }
+
+  function selectRecyclingType(recyclingTypeId: number) {
+    if (selectedRecyclingTypes.includes(recyclingTypeId)) {
+      setSelectedRecyclingTypes(
+        selectedRecyclingTypes.filter(
+          (recyclabe) => recyclabe !== recyclingTypeId
+        )
+      );
+    } else {
+      setSelectedRecyclingTypes([...selectedRecyclingTypes, recyclingTypeId]);
+    }
+  }
+
+  useEffect(() => {
+    api.get('recycling-types').then((res) => {
+      setRecyclingTypes(res.data);
+    });
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -53,6 +83,7 @@ const CollectionPointsIndex = () => {
                 <Image
                   style={styles.mapMarkerImage}
                   source={{
+                    // TODO: get image_uri from api
                     uri: 'https://unsplash.com/photos/D6Tu_L3chLE/download?force=true&w=640',
                   }}
                 />
@@ -61,23 +92,32 @@ const CollectionPointsIndex = () => {
             </Marker>
           </MapView>
         </View>
-
-        <View style={styles.recyclableTypesContainer}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20 }}
-          >
-            <TouchableOpacity style={styles.recyclableType} onPress={() => {}}>
-              <SvgUri
-                height={42}
-                width={42}
-                uri="http://192.168.0.5:3001/assets/lamps.svg"
-              />
-              <Text style={styles.recyclableTypeDescription}>Lamps</Text>
+      </View>
+      <View style={styles.recyclableTypesContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20 }}
+        >
+          {recyclingTypes.map((recyclingType) => (
+            <TouchableOpacity
+              style={[
+                styles.recyclableType,
+                selectedRecyclingTypes.includes(recyclingType.id)
+                  ? styles.selectedRecyclableType
+                  : {},
+              ]}
+              onPress={() => selectRecyclingType(recyclingType.id)}
+              key={String(recyclingType.id)}
+              activeOpacity={0.6}
+            >
+              <SvgUri height={42} width={42} uri={recyclingType.image_url} />
+              <Text style={styles.recyclableTypeDescription}>
+                {recyclingType.description}
+              </Text>
             </TouchableOpacity>
-          </ScrollView>
-        </View>
+          ))}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -155,8 +195,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 2,
     borderColor: '#eee',
-    height: 120,
-    width: 120,
+    height: 110,
+    width: 110,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingTop: 20,
