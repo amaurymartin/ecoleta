@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Image,
+  Linking,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -8,50 +9,146 @@ import {
   View,
 } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import * as MailComposer from 'expo-mail-composer';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 
+import api from '../../../services/api';
+
+type CollectionPointsShowParams = {
+  CollectionPoint: {
+    collectionPointKey: string;
+  };
+};
+
+interface Recyclable {
+  id: number;
+  description: string;
+  imageUri: string;
+}
+
+type CollectionPoint = {
+  key: string;
+  name: string;
+  nickname: string;
+  imageBase64: string;
+  email: string;
+  whatsapp: string;
+  address: {
+    street: string;
+    number: string;
+    complement: string;
+    city: string;
+    state: string;
+    country: string;
+    latitude: string;
+    longitude: string;
+  };
+  recyclables: Recyclable[];
+};
+interface CollectionPointsShowResponse {
+  collectionPoint: CollectionPoint;
+}
 const CollectionPointsShow = () => {
   const navigation = useNavigation();
+
+  const route =
+    useRoute<RouteProp<CollectionPointsShowParams, 'CollectionPoint'>>();
+  const collectionPointKey = route.params.collectionPointKey;
+
+  const [collectionPoint, setCollectionPoint] =
+    useState<CollectionPoint>(Object);
 
   function navigateBack() {
     navigation.goBack();
   }
 
+  function sendWhatsapp() {
+    Linking.openURL(`whatsapp://send?phone=${collectionPoint.whatsapp}`);
+  }
+
+  function sendEmail() {
+    MailComposer.composeAsync({
+      subject: '',
+      recipients: [collectionPoint.email],
+    });
+  }
+
+  useEffect(() => {
+    api
+      .get<CollectionPointsShowResponse>(
+        `collection-points/${collectionPointKey}`
+      )
+      .then((res) => {
+        setCollectionPoint(res.data.collectionPoint);
+      });
+    // async function getCollectionPoint() {
+    //   await api
+    //     .get<CollectionPointsShowResponse>(
+    //       `collection-points/${collectionPointKey}`
+    //     )
+    //     .then((res) => {
+    //       setCollectionPoint(res.data.collectionPoint);
+    //     });
+    // }
+
+    // getCollectionPoint();
+  }, []);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <TouchableOpacity onPress={navigateBack}>
-          <Feather name="arrow-left" color="#34CB79" size={20} />
-        </TouchableOpacity>
+      {Object.keys(collectionPoint).length !== 0 && (
+        <>
+          <View style={styles.container}>
+            <TouchableOpacity onPress={navigateBack}>
+              <Feather name="arrow-left" color="#34CB79" size={20} />
+            </TouchableOpacity>
 
-        <Image
-          style={styles.collectionPointImage}
-          source={{
-            uri: 'https://unsplash.com/photos/D6Tu_L3chLE/download?force=true&w=640',
-          }}
-        />
+            <Image
+              style={styles.collectionPointImage}
+              source={{
+                uri: collectionPoint.imageBase64,
+              }}
+            />
 
-        <Text style={styles.collectionPointName}>{`Corner's market`}</Text>
+            <Text style={styles.collectionPointName}>
+              {collectionPoint.name}
+            </Text>
+            <Text style={styles.collectionPointRecyclables}>
+              {collectionPoint.recyclables
+                .map((recyclable) => recyclable.description)
+                .join(', ')}
+            </Text>
 
-        <Text style={styles.collectionPointRecyclables}>Lamps, Oil</Text>
+            <View style={styles.collectionPointAddress}>
+              <Text style={styles.addressStreet}>
+                {[
+                  collectionPoint.address.street,
+                  collectionPoint.address.number,
+                  collectionPoint.address.complement,
+                ].join(', ')}
+              </Text>
+              <Text style={styles.addressContent}>
+                {[
+                  collectionPoint.address.city,
+                  collectionPoint.address.state,
+                ].join(', ')}
+              </Text>
+            </View>
+          </View>
 
-        <View style={styles.collectionPointAddress}>
-          <Text style={styles.addressStreet}>Rua 1234. n 5678</Text>
-          <Text style={styles.addressContent}>Fortaleza, Ceará</Text>
-        </View>
-      </View>
-
-      <View style={styles.footer}>
-        <RectButton style={styles.button} onPress={() => {}}>
-          <FontAwesome name="whatsapp" color="#FFF" size={20} />
-          <Text style={styles.buttonText}>Whatsapp</Text>
-        </RectButton>
-        <RectButton style={styles.button} onPress={() => {}}>
-          <Feather name="mail" color="#FFF" size={20} />
-          <Text style={styles.buttonText}>Email</Text>
-        </RectButton>
-      </View>
+          <View style={styles.footer}>
+            <RectButton style={styles.button} onPress={sendWhatsapp}>
+              <FontAwesome name="whatsapp" color="#FFF" size={20} />
+              <Text style={styles.buttonText}>Whatsapp</Text>
+            </RectButton>
+            <RectButton style={styles.button} onPress={sendEmail}>
+              <Feather name="mail" color="#FFF" size={20} />
+              <Text style={styles.buttonText}>Email</Text>
+            </RectButton>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -85,6 +182,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginTop: 8,
     color: '#6C6C80',
+    textAlign: 'center',
   },
 
   collectionPointAddress: {
