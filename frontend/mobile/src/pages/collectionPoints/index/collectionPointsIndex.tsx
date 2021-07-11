@@ -11,11 +11,18 @@ import {
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SvgUri } from 'react-native-svg';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Feather as Icon } from '@expo/vector-icons';
 
 import api from '../../../services/api';
+
+type CollectionPointsIndexParams = {
+  CollectionPoints: {
+    state: string;
+    city: string;
+  };
+};
 interface CollectionPoints {
   key: string;
   name: string;
@@ -56,6 +63,10 @@ const CollectionPointsIndex = () => {
     number[]
   >([]);
   const navigation = useNavigation();
+
+  const route =
+    useRoute<RouteProp<CollectionPointsIndexParams, 'CollectionPoints'>>();
+  const { state, city } = route.params;
 
   function navigateBack() {
     navigation.goBack();
@@ -99,9 +110,15 @@ const CollectionPointsIndex = () => {
 
   useEffect(() => {
     api
-      .get<IndexCollectionPointsResponse>('collection-points')
+      .get<IndexCollectionPointsResponse>('collection-points', {
+        params: {
+          state: state,
+          city: city,
+          recyclables: selectedRecyclingTypes,
+        },
+      })
       .then((res) => setCollectionPoints(res.data.collectionPoints));
-  }, []);
+  }, [selectedRecyclingTypes]);
 
   useEffect(() => {
     api.get('recycling-types').then((res) => setRecyclingTypes(res.data));
