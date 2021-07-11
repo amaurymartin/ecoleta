@@ -1,14 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ImageBackground, Image, Text, StyleSheet } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
+import RNPickerSelect from 'react-native-picker-select';
 import { useNavigation } from '@react-navigation/native';
 import { Feather as Icon } from '@expo/vector-icons';
 
+import ibge from '../../services/ibge';
+
+interface IbGEUFResponse {
+  sigla: string;
+  nome: string;
+}
+
 const Home = () => {
+  const [brazilianStates, setBrazilianStates] = useState<string[]>([]);
+  const [selectedState, setSelectedState] = useState<string>('0');
+
+  const [brazilianStateCities, setBrazilianStateCities] = useState<string[]>(
+    []
+  );
+  const [selectedCity, setSelectedCity] = useState<string>('0');
+
   const navigation = useNavigation();
 
   function navigateToCollectionPointsIndex() {
-    navigation.navigate('CollectionPointsIndex');
+    navigation.navigate('CollectionPointsIndex', {
+      state: selectedState,
+      city: selectedCity,
+    });
+  }
+
+  useEffect(() => {
+    ibge
+      .get<IbGEUFResponse[]>('localidades/estados?orderBy=nome')
+      .then((res) => {
+        setBrazilianStates(res.data.map((state) => state.sigla));
+      });
+  }, []);
+
+  useEffect(() => {
+    if (selectedState === '0') return;
+
+    ibge
+      .get<IbGEUFResponse[]>(
+        `localidades/estados/${selectedState}/municipios?orderBy=nome`
+      )
+      .then((res) => {
+        setBrazilianStateCities(res.data.map((city) => city.nome));
+      });
+  }, [selectedState]);
+
+  function selectState(stateName: string) {
+    setSelectedState(stateName);
+  }
+
+  function selectCity(stateCityName: string) {
+    setSelectedCity(stateCityName);
   }
 
   return (
@@ -26,6 +73,26 @@ const Home = () => {
       </View>
 
       <View style={styles.footer}>
+        <RNPickerSelect
+          style={Pickerselect}
+          placeholder={{ label: 'Select your state', value: '0' }}
+          onValueChange={(value: string) => selectState(value)}
+          items={brazilianStates.map((stateName) => ({
+            label: stateName,
+            value: stateName,
+          }))}
+        />
+        <RNPickerSelect
+          style={Pickerselect}
+          placeholder={{ label: 'Select your city', value: '0' }}
+          onValueChange={(value: string) => selectCity(value)}
+          items={brazilianStateCities.map((cityName) => ({
+            label: cityName,
+            value: cityName,
+          }))}
+          disabled={selectedState === '0'}
+        />
+
         <RectButton
           style={styles.button}
           onPress={navigateToCollectionPointsIndex}
@@ -70,8 +137,6 @@ const styles = StyleSheet.create({
 
   footer: {},
 
-  select: {},
-
   input: {
     height: 60,
     backgroundColor: '#FFF',
@@ -108,5 +173,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+const Pickerselect = {
+  inputIOS: {
+    height: 60,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    marginBottom: 8,
+    paddingHorizontal: 24,
+    fontSize: 16,
+  },
+  inputAndroid: {
+    height: 60,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    marginBottom: 8,
+    paddingHorizontal: 24,
+    fontSize: 16,
+  },
+};
 
 export default Home;
