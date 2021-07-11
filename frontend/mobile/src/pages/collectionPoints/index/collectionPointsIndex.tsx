@@ -71,7 +71,7 @@ const CollectionPointsIndex = () => {
     if (selectedRecyclingTypes.includes(recyclingTypeId)) {
       setSelectedRecyclingTypes(
         selectedRecyclingTypes.filter(
-          (recyclabe) => recyclabe !== recyclingTypeId
+          (recyclingType) => recyclingType !== recyclingTypeId
         )
       );
     } else {
@@ -91,7 +91,6 @@ const CollectionPointsIndex = () => {
       const currentLocation = await Location.getCurrentPositionAsync();
       const { latitude, longitude } = currentLocation.coords;
 
-      console.log(latitude, longitude);
       setCurrentLocation([latitude, longitude]);
     }
 
@@ -100,13 +99,7 @@ const CollectionPointsIndex = () => {
 
   useEffect(() => {
     api
-      .get<IndexCollectionPointsResponse>('collection-points', {
-        params: {
-          city: 'Fortaleza',
-          state: 'CE',
-          recyclabes: [1, 2],
-        },
-      })
+      .get<IndexCollectionPointsResponse>('collection-points')
       .then((res) => setCollectionPoints(res.data.collectionPoints));
   }, []);
 
