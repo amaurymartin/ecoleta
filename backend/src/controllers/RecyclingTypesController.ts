@@ -13,7 +13,7 @@ class RecyclingTypesController {
       return {
         id: recyclingType.id,
         description: recyclingType.description,
-        image_url: `/assets/${recyclingType.description}`
+        imageUri: `/assets/${recyclingType.description}.svg`
       }
     })
 

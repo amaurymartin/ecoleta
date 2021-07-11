@@ -150,7 +150,7 @@ class CollectionPointsController {
           return {
             id: recyclable.id,
             description: recyclable.description,
-            image_url: `/assets/${recyclable.description}`
+            imageUri: `/assets/${recyclable.description}.svg`
           }
         }),
         address: {
