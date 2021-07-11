@@ -41,7 +41,7 @@ interface IndexCollectionPointsResponse {
 interface RecyclingTypes {
   id: number;
   description: string;
-  image_url: string;
+  imageUri: string;
 }
 
 const CollectionPointsIndex = () => {
@@ -175,7 +175,7 @@ const CollectionPointsIndex = () => {
               key={String(recyclingType.id)}
               activeOpacity={0.6}
             >
-              <SvgUri height={42} width={42} uri={recyclingType.image_url} />
+              <SvgUri height={42} width={42} uri={recyclingType.imageUri} />
               <Text style={styles.recyclableTypeDescription}>
                 {recyclingType.description}
               </Text>
