@@ -139,7 +139,7 @@ class CollectionPointsController {
       .where('collection_point_recyclables.collection_point_id', collectionPoint.id)
 
     return res.json({
-      collection_point: {
+      collectionPoint: {
         key: collectionPoint.key,
         name: collectionPoint.name,
         nickname: collectionPoint.nickname,
@@ -150,6 +150,8 @@ class CollectionPointsController {
           return {
             id: recyclable.id,
             description: recyclable.description,
+            // TODO: To test mobile app, change URI to expo endpoint:
+            // imageUri: `http://192.168.0.5:3001/assets/${recyclingType.description}.svg`
             imageUri: `/assets/${recyclable.description}.svg`
           }
         }),
