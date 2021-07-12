@@ -1,10 +1,13 @@
-
 import express from 'express'
+import multer from 'multer'
+
+import multerConfig from './config/multer'
 import SessionsController from './controllers/SessionsController'
 import CollectionPointsController from './controllers/CollectionPointsController'
 import RecyclingTypesController from './controllers/RecyclingTypesController'
 
 const routes = express.Router()
+const upload = multer(multerConfig)
 
 const sessionsController = new SessionsController()
 const collectionPointsController = new CollectionPointsController()
@@ -19,7 +22,11 @@ routes.get('/healthcheck', (_req, res) => {
 routes.post('/sessions', sessionsController.create)
 
 // CollectionPoints resource
-routes.post('/collection-points', collectionPointsController.create)
+routes.post(
+  '/collection-points',
+  upload.single('imageBase64'),
+  collectionPointsController.create
+)
 routes.get('/collection-points', collectionPointsController.index)
 routes.get('/collection-points/:key', collectionPointsController.show)
 // routes.put('/collection-points/:key', collectionPointsController.update);

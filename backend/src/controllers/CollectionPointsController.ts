@@ -4,22 +4,21 @@ import connection from '../../database/connection'
 
 class CollectionPointsController {
   async create (req: Request, res: Response) {
-    const { collectionPoint } = req.body
+    const collectionPoint = req.body
     const key = uuidv4()
 
     // TODO: check uniques (key, whatsapp, email)
-
     const trx = await connection.transaction()
 
     const addresses = await trx('addresses').insert({
-      street: collectionPoint.address.street,
-      number: collectionPoint.address.number,
-      complement: collectionPoint.address.complement,
-      city: collectionPoint.address.city,
-      state: collectionPoint.address.state,
-      country: collectionPoint.address.country,
-      latitude: collectionPoint.address.latitude,
-      longitude: collectionPoint.address.longitude
+      street: collectionPoint.street,
+      number: collectionPoint.number,
+      complement: collectionPoint.complement,
+      city: collectionPoint.city,
+      state: collectionPoint.state,
+      country: collectionPoint.country,
+      latitude: collectionPoint.latitude,
+      longitude: collectionPoint.longitude
     }).returning('id').catch(error => {
       console.log(error)
 
@@ -37,7 +36,7 @@ class CollectionPointsController {
         : collectionPoint.name.split(' ')[0],
       whatsapp: collectionPoint.whatsapp,
       email: collectionPoint.email,
-      image_base64: collectionPoint.imageBase64
+      image_base64: req.file? req.file.filename : null
     }).returning('id').catch(error => {
       console.log(error)
       return []
@@ -46,12 +45,15 @@ class CollectionPointsController {
     if (!collectionPoints[0]) return res.status(422).json({ error: 'Error on Collection Point data' })
 
     await trx('collection_point_recyclables').insert(
-      collectionPoint.recyclables.map((recyclableId: number) => {
-        return {
-          collection_point_id: collectionPoints[0],
-          recycling_type_id: recyclableId
-        }
-      })
+      collectionPoint.recyclables
+        .split(',')
+        .map((recyclableId: string) => Number(recyclableId.trim()))
+        .map((recyclableId: number) => {
+          return {
+            collection_point_id: collectionPoints[0],
+            recycling_type_id: recyclableId
+          }
+        })
     ).catch(error => {
       console.log(error)
       trx.commit()
@@ -104,7 +106,9 @@ class CollectionPointsController {
             key: collectionPoint.key,
             name: collectionPoint.name,
             nickname: collectionPoint.nickname,
-            imageBase64: collectionPoint.image_base64,
+            // TODO: To test mobile app, change URI to expo endpoint:
+            // imageUri: `http://192.168.0.5:3001/uploads/${collectionPoint.image_base64}`,
+            imageUri: `/uploads/${collectionPoint.image_base64}`,
             email: collectionPoint.email,
             whatsapp: collectionPoint.whatsapp,
             address: {
@@ -143,7 +147,9 @@ class CollectionPointsController {
         key: collectionPoint.key,
         name: collectionPoint.name,
         nickname: collectionPoint.nickname,
-        imageBase64: collectionPoint.image_base64,
+        // TODO: To test mobile app, change URI to expo endpoint:
+        // imageUri: `http://192.168.0.5:3001/uploads/${collectionPoint.image_base64}`,
+        imageUri: `/uploads/${collectionPoint.image_base64}`,
         email: collectionPoint.email,
         whatsapp: collectionPoint.whatsapp,
         recyclables: recyclables.map(recyclable => {
@@ -151,7 +157,7 @@ class CollectionPointsController {
             id: recyclable.id,
             description: recyclable.description,
             // TODO: To test mobile app, change URI to expo endpoint:
-            // imageUri: `http://192.168.0.5:3001/assets/${recyclingType.description}.svg`
+            // imageUri: `http://192.168.0.5:3001/assets/${recyclable.description}.svg`,
             imageUri: `/assets/${recyclable.description}.svg`
           }
         }),
