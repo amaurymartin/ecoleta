@@ -27,7 +27,7 @@ interface CollectionPoints {
   key: string;
   name: string;
   nickname: string;
-  imageBase64: string;
+  imageUri: string;
   email: string;
   whatsapp: string;
   address: {
@@ -161,7 +161,7 @@ const CollectionPointsIndex = () => {
                     <Image
                       style={styles.mapMarkerImage}
                       source={{
-                        uri: collectionPoint.imageBase64,
+                        uri: collectionPoint.imageUri,
                       }}
                     />
                     <Text style={styles.mapMarkerDescription}>

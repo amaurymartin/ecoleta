@@ -31,7 +31,7 @@ type CollectionPoint = {
   key: string;
   name: string;
   nickname: string;
-  imageBase64: string;
+  imageUri: string;
   email: string;
   whatsapp: string;
   address: {
@@ -107,7 +107,7 @@ const CollectionPointsShow = () => {
             <Image
               style={styles.collectionPointImage}
               source={{
-                uri: collectionPoint.imageBase64,
+                uri: collectionPoint.imageUri,
               }}
             />
 

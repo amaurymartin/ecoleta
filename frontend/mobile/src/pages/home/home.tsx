@@ -96,6 +96,7 @@ const Home = () => {
         <RectButton
           style={styles.button}
           onPress={navigateToCollectionPointsIndex}
+          enabled={selectedState !== '0' && selectedCity !== '0'}
         >
           <View style={styles.buttonIcon}>
             <Icon name="arrow-right" color="#FFF" size={24}></Icon>
