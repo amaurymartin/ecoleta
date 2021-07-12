@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import { MapContainer, TileLayer } from 'react-leaflet'
 
+import Dropzone from './dropzone/dropzone'
 import LocationMarker from './map/locationMarker'
 
 import './collection-points-new.css'
@@ -28,6 +29,8 @@ interface IbGEUFResponse {
 // const { REACT_APP_API_SCHEME, REACT_APP_API_DOMAIN, REACT_APP_API_PORT } = process.env
 
 const CollectionPointsNew = () => {
+  const [selectedImage, setSelectedImage] = useState<File>()
+
   const [brazilianStates, setBrazilianStates] = useState<string[]>([])
   const [selectedState, setSelectedState] = useState<string>('0')
 
@@ -102,29 +105,25 @@ const CollectionPointsNew = () => {
 
   async function createCollectionPoint (event: FormEvent) {
     event.preventDefault()
-
     const { name, nickname, email, whatsapp, street, number, complement } = formData
 
-    const payload = {
-      collectionPoint: {
-        name: name,
-        nickname: nickname,
-        whatsapp: whatsapp,
-        email: email,
-        imageBase64: 'imageBase64',
-        recyclables: recyclables,
-        address: {
-          street: street,
-          number: number,
-          complement: complement,
-          city: selectedCity,
-          state: selectedState,
-          country: 'Brazil',
-          latitude: currentPosition[0],
-          longitude: currentPosition[1]
-        }
-      }
-    }
+    const payload = new FormData()
+
+    payload.append('name', String(name))
+    payload.append('nickname', String(nickname))
+    payload.append('whatsapp', String(whatsapp))
+    payload.append('email', String(email))
+    payload.append('recyclables', recyclables.join(','))
+    payload.append('street', String(street))
+    payload.append('number', String(number))
+    payload.append('complement', String(complement))
+    payload.append('city', String(selectedCity))
+    payload.append('state', String(selectedState))
+    // payload.append('country', String(country))
+    payload.append('latitude', String(currentPosition[0]))
+    payload.append('longitude', String(currentPosition[1]))
+
+    if (selectedImage) payload.append('imageBase64', selectedImage)
 
     // TODO: catch failure
     await api.post('collection-points', payload)
@@ -146,6 +145,8 @@ const CollectionPointsNew = () => {
 
         <form onSubmit={createCollectionPoint}>
           <h1>New collection point</h1>
+
+          <Dropzone onFileUploaded={setSelectedImage}/>
 
           <fieldset>
             <legend>
