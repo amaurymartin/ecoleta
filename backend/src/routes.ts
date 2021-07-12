@@ -1,5 +1,6 @@
 import express from 'express'
 import multer from 'multer'
+import { celebrate, Joi } from 'celebrate'
 
 import multerConfig from './config/multer'
 import SessionsController from './controllers/SessionsController'
@@ -19,12 +20,31 @@ routes.get('/healthcheck', (_req, res) => {
 })
 
 // Sessions resource
-routes.post('/sessions', sessionsController.create)
+// routes.post('/sessions', sessionsController.create)
 
 // CollectionPoints resource
 routes.post(
   '/collection-points',
   upload.single('imageBase64'),
+  celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().required(),
+      nickname: Joi.string().optional(),
+      whatsapp: Joi.string().required().min(10).max(11), //FIXME: this is a brazilian verification
+      email: Joi.string().required().email(),
+      recyclables: Joi.string().required(),
+      street: Joi.string().required(),
+      number: Joi.string().required(),
+      complement: Joi.string().optional(),
+      city: Joi.string().required(),
+      state: Joi.string().required().max(2), //FIXME: this is a brazilian verification?
+      country: Joi.string().optional(),
+      latitude: Joi.number().required(),
+      longitude: Joi.number().required(),
+    })
+  }, {
+    abortEarly: false
+  }),
   collectionPointsController.create
 )
 routes.get('/collection-points', collectionPointsController.index)
